@@ -379,14 +379,14 @@ function addScrapingPosts()
                                 "slug" => sanitize_title($value['value']),
                                 "term_group" => "0"
                             ];
-                            $termsResult = $wpdb->get_var( $wpdb->prepare("SELECT term_id FROM $wpdb->terms WHERE name = %s ORDER BY term_id DESC LIMIT 1" , $value['value']));
+                            $termsResult = $wpdb->get_var( $wpdb->prepare("SELECT {$wpdb->terms}.term_id FROM $wpdb->terms INNER JOIN {$wpdb->term_taxonomy} ON {$wpdb->terms}.term_id= {$wpdb->term_taxonomy}.term_id WHERE {$wpdb->terms}.name = %s AND {$wpdb->term_taxonomy}.taxonomy = %s ORDER BY {$wpdb->terms}.term_id DESC LIMIT 1" , $value['value'], 'vehica_' . $postResult));
 
                             if (!$termsResult) {
                                 $wpdb->insert($wpdb->terms, $termsValue);
                                 $insertTermsId = $wpdb->insert_id;
 
                                 if ($value['label'] == 'Model') {
-                                    $termsMakeResult = $wpdb->get_var( $wpdb->prepare("SELECT term_id FROM $wpdb->terms WHERE name = %s ORDER BY term_id DESC LIMIT 1" , $value['make']));
+                                    $termsMakeResult = $wpdb->get_var( $wpdb->prepare("SELECT {$wpdb->terms}.term_id FROM $wpdb->terms INNER JOIN {$wpdb->term_taxonomy} ON {$wpdb->terms}.term_id= {$wpdb->term_taxonomy}.term_id WHERE {$wpdb->terms}.name = %s AND {$wpdb->term_taxonomy}.taxonomy = %s ORDER BY {$wpdb->terms}.term_id DESC LIMIT 1" , $value['make'], 'vehica_' . $postResult));
                                     $termmetaValue = [[
                                         "term_id" => $insertTermsId,
                                         "meta_key" => "vehica_label_text_color",
@@ -429,7 +429,7 @@ function addScrapingPosts()
                             $termTaxonomyResult = $wpdb->get_var( $wpdb->prepare("SELECT term_taxonomy_id FROM $wpdb->term_taxonomy WHERE term_id = %s AND taxonomy = %s ORDER BY term_taxonomy_id DESC LIMIT 1" , $insertTermsId, 'vehica_' . $postResult));
 
                             if ($termTaxonomyResult) {
-                                $wpdb->query("UPDATE $wpdb->term_taxonomy SET count=count+1 WHERE term_taxonomy_id=$termTaxonomyResult)");
+                                $wpdb->query("UPDATE $wpdb->term_taxonomy SET count=count+1 WHERE term_taxonomy_id = $termTaxonomyResult");
                                 $insertTermTaxonomyId = $termTaxonomyResult;
                             } else {
                                 $termTaxonomy = [
@@ -437,7 +437,7 @@ function addScrapingPosts()
                                     "taxonomy" => 'vehica_' . $postResult,
                                     "description" => "",
                                     "parent" => "0",
-                                    "count" => "0"
+                                    "count" => "1"
                                 ];
 
                                 $wpdb->insert($wpdb->term_taxonomy, $termTaxonomy);
@@ -552,20 +552,552 @@ function cronAddScrapingPosts() {
 	}
 
 	write_log('THIS IS THE START OF MY CUSTOM DEBUG');
+    
+    //addScrapingPosts();
+}
 
-   addScrapingPosts();
+function repairVehicleTerms() {
+    
+    $args = array('post_type' => 'vehica_car', 'numberposts' => -1);
+    global $wpdb;
+    $posts = get_posts($args);
+
+    $makeList = [["id" => "137",
+            "name" => "Abarth",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "5",
+            "name" => "Alfa Romeo",
+            "selected" => true,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "70",
+            "name" => "Aston Martin",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "1",
+            "name" => "Audi",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "54",
+            "name" => "Austin",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "46",
+            "name" => "Bentley",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "2",
+            "name" => "BMW",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "42",
+            "name" => "Chevrolet",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "3",
+            "name" => "Chrysler",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "4",
+            "name" => "Citroen",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "297999814",
+            "name" => "Cupra",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "793",
+            "name" => "Dacia",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "34",
+            "name" => "Daihatsu",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "48",
+            "name" => "Dodge",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "170978731",
+            "name" => "DS",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "43",
+            "name" => "Ferrari",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "6",
+            "name" => "Fiat",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "7",
+            "name" => "Ford",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "116307351",
+            "name" => "Great Wall",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "8",
+            "name" => "Honda",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "9",
+            "name" => "Hyundai",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "799",
+            "name" => "Infiniti",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "10",
+            "name" => "Isuzu",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "11",
+            "name" => "Jaguar",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "12",
+            "name" => "Jeep",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "13",
+            "name" => "Kia",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "65",
+            "name" => "Lamborghini",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "14",
+            "name" => "Land Rover",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "36",
+            "name" => "Lexus",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "51",
+            "name" => "Maserati",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "15",
+            "name" => "Mazda",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "167026535",
+            "name" => "McLaren",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "16",
+            "name" => "Mercedes",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "17",
+            "name" => "MG",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "18",
+            "name" => "MINI",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "19",
+            "name" => "Mitsubishi",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "20",
+            "name" => "Nissan",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "21",
+            "name" => "Opel",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "22",
+            "name" => "Peugeot",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "311279897",
+            "name" => "Polestar",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "23",
+            "name" => "Porsche",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "24",
+            "name" => "Renault",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "44",
+            "name" => "Rolls-Royce",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "26",
+            "name" => "SAAB",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "27",
+            "name" => "Seat",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "28",
+            "name" => "Skoda",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "47",
+            "name" => "Smart",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "41",
+            "name" => "SsangYong",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "40",
+            "name" => "Subaru",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "29",
+            "name" => "Suzuki",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "807",
+            "name" => "TESLA",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "30",
+            "name" => "Toyota",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "50",
+            "name" => "TVR",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "31",
+            "name" => "Vauxhall",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "32",
+            "name" => "Volkswagen",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+        ], [
+            "id" => "33",
+            "name" => "Volvo",
+            "selected" => false,
+            "extra" => null,
+            "type" => 0
+    ]];
+    
+    $wpdb->query("DELETE terms FROM $wpdb->terms AS terms INNER JOIN $wpdb->term_taxonomy AS term_taxonomy ON terms.term_id = term_taxonomy.term_id WHERE term_taxonomy.taxonomy = 'vehica_6659'");
+    $wpdb->query("DELETE terms FROM $wpdb->terms AS terms INNER JOIN $wpdb->term_taxonomy AS term_taxonomy ON terms.term_id = term_taxonomy.term_id WHERE term_taxonomy.taxonomy = 'vehica_6660'");
+    $wpdb->query("DELETE FROM $wpdb->term_taxonomy WHERE taxonomy = 'vehica_6659'");
+    $wpdb->query("DELETE FROM $wpdb->term_taxonomy WHERE taxonomy = 'vehica_6660'");
+    $wpdb->query("DELETE FROM $wpdb->term_relationships WHERE term_taxonomy_id NOT IN (SELECT term_taxonomy_id FROM $wpdb->term_taxonomy)");
+    $wpdb->query("DELETE FROM $wpdb->termmeta WHERE meta_key = 'vehica_label_text_color' AND meta_value = '#000000'");
+    $wpdb->query("DELETE FROM $wpdb->termmeta WHERE meta_key = 'vehica_label_background_color' AND meta_value = 'default'");
+    $wpdb->query("DELETE FROM $wpdb->termmeta WHERE meta_key = 'vehica_parent_term' AND meta_value LIKE 'a:1:{i:0;i:%'");
+    $wpdb->query("DELETE FROM $wpdb->termmeta WHERE meta_key = 'vehica_alias'");
+
+    foreach($makeList as $eachMake) {
+        $termMake = [
+            "name" => $eachMake['name'],
+            "slug" => sanitize_title($eachMake['name']),
+            "term_group" => "0"
+        ];
+
+        $termsMakeResult = $wpdb->get_var( $wpdb->prepare("SELECT {$wpdb->terms}.term_id FROM $wpdb->terms INNER JOIN {$wpdb->term_taxonomy} ON {$wpdb->terms}.term_id= {$wpdb->term_taxonomy}.term_id WHERE {$wpdb->terms}.name = %s AND {$wpdb->term_taxonomy}.taxonomy = %s ORDER BY {$wpdb->terms}.term_id DESC LIMIT 1" , $eachMake['name'], 'vehica_6659'));
+        if ($termsMakeResult) {
+            return;
+        }
+
+        $wpdb->insert($wpdb->terms, $termMake);
+        $termInsertedId = $wpdb->insert_id;
+
+        $termTaxonomy = [
+            "term_id" => $termInsertedId,
+            "taxonomy" => 'vehica_6659',
+            "description" => "",
+            "parent" => "0",
+            "count" => "0"
+        ];
+
+        $wpdb->insert($wpdb->term_taxonomy, $termTaxonomy);
+        $termTaxonomyInsertedId = $wpdb->insert_id;
+
+        $termmetaValues = [[
+            "term_id" => $termInsertedId,
+            "meta_key" => "vehica_parent_term",
+            "meta_value" => "a:1:{i:0;i:2452;}"
+        ],
+        [
+            "term_id" => $termInsertedId,
+            "meta_key" => "vehica_alias",
+            "meta_value" => "Car " . $eachMake['name']
+        ]];
+
+        foreach ($termmetaValues as $eachTermmeta) {
+            $wpdb->insert($wpdb->termmeta, $eachTermmeta);
+        }
+
+        foreach ($posts as $post) {
+            if (str_contains($post->post_title, $eachMake['name'])) {
+                $termRelationship = [
+                    "object_id" => $post->ID,
+                    "term_taxonomy_id" => $termTaxonomyInsertedId,
+                    "term_order" => "0"
+                ];
+
+                $wpdb->insert($wpdb->term_relationships, $termRelationship);
+
+                $wpdb->query("UPDATE $wpdb->term_taxonomy SET count=count+1 WHERE term_taxonomy_id=$termTaxonomyInsertedId)");
+
+                $temp = substr($post->post_title, strpos($post->post_title, $eachMake['name']) + strlen($eachMake['name']) + 1);
+
+                if (strpos($temp, '  ') === false) $postModel = $temp;
+                else $temp = substr($temp, 0, strpos($temp, '  '));
+
+                if (strpos($temp, ' ') === false) $postModel = $temp;
+                else $postModel = substr($temp, 0, strrpos($temp, ' '));
+                if ($eachMake['name'] == 'Aston Martin') {
+                    write_log('-=-=-=-=-=-====================');
+                    write_log($post->post_title);
+                    $temp1 = substr($post->post_title, strpos($post->post_title, $eachMake['name']) + strlen($eachMake['name']) + 1);
+                    write_log($temp1);
+                    $temp1 = substr($temp1, 0, strpos($temp1, '  '));
+                    write_log($temp1);
+                    if (strpos($temp1, ' ') === false) $postModel1 = $temp1;
+                    else $postModel1 = substr($temp1, 0, strrpos($temp1, ' '));
+                    write_log($postModel1);
+                    write_log('-eeeeeeeeeeeeeeeeee============');
+                }
+                $termModel = [
+                    "name" => $postModel,
+                    "slug" => sanitize_title($postModel),
+                    "term_group" => "0"
+                ];
+
+                $termsResult = $wpdb->get_var( $wpdb->prepare("SELECT {$wpdb->terms}.term_id FROM $wpdb->terms INNER JOIN {$wpdb->term_taxonomy} ON {$wpdb->terms}.term_id= {$wpdb->term_taxonomy}.term_id WHERE {$wpdb->terms}.name = %s AND {$wpdb->term_taxonomy}.taxonomy = %s ORDER BY {$wpdb->terms}.term_id DESC LIMIT 1" , $postModel, 'vehica_6660'));
+
+                $termmetaResult = $termsResult ? $wpdb->get_var( $wpdb->prepare("SELECT term_id FROM $wpdb->termmeta WHERE term_id = %s AND meta_value='a:1:{i:0;i:" . $termInsertedId . ";}' ORDER BY term_id DESC LIMIT 1", $termsResult)) : null;
+
+                if ($termsResult && $termmetaResult) {
+                    $termModelInsertedId = $termsResult;
+                } else {
+                    $wpdb->insert($wpdb->terms, $termModel);
+                    $termModelInsertedId = $wpdb->insert_id;
+
+                    $termmetaModelValues = [[
+                        "term_id" => $termModelInsertedId,
+                        "meta_key" => "vehica_label_text_color",
+                        "meta_value" => "#000000"
+                    ],
+                    [
+                        "term_id" => $termModelInsertedId,
+                        "meta_key" => "vehica_label_background_color",
+                        "meta_value" => "default"
+                    ],
+                    [
+                        "term_id" => $termModelInsertedId,
+                        "meta_key" => "vehica_parent_term",
+                        "meta_value" => "a:1:{i:0;i:" . $termInsertedId . ";}"
+                    ],
+                    [
+                        "term_id" => $termModelInsertedId,
+                        "meta_key" => "vehica_alias",
+                        "meta_value" => $eachMake['name'] . " " . $postModel
+                    ]];
+
+                    foreach ($termmetaModelValues as $eachTermmetaModel) {
+                        $wpdb->insert($wpdb->termmeta, $eachTermmetaModel);
+                    }
+                }
+
+                $termModelTaxonomy = [
+                    "term_id" => $termModelInsertedId,
+                    "taxonomy" => 'vehica_6660',
+                    "description" => "",
+                    "parent" => "0",
+                    "count" => "1"
+                ];
+
+                $termTaxonomyResult = $wpdb->get_var( $wpdb->prepare("SELECT term_taxonomy_id FROM $wpdb->term_taxonomy WHERE term_id = %s AND taxonomy = %s ORDER BY term_taxonomy_id DESC LIMIT 1" , $termModelInsertedId, 'vehica_6660'));
+
+                if ($termTaxonomyResult) {
+                    $wpdb->query("UPDATE $wpdb->term_taxonomy SET count=count+1 WHERE term_taxonomy_id = $termTaxonomyResult");
+                    $termModelTaxonomyInsertedId = $termTaxonomyResult;
+                } else {
+                    $wpdb->insert($wpdb->term_taxonomy, $termModelTaxonomy);
+                    $termModelTaxonomyInsertedId = $wpdb->insert_id;
+                }
+
+                $termRelationshipsResult = $wpdb->get_var( $wpdb->prepare("SELECT object_id FROM $wpdb->term_relationships WHERE term_taxonomy_id = %s AND object_id = %s ORDER BY object_id DESC LIMIT 1" , $termModelTaxonomyInsertedId, $post->ID));
+
+                if (!$termRelationshipsResult) {
+                    $termModelRelationship = [
+                        "object_id" => $post->ID,
+                        "term_taxonomy_id" => $termModelTaxonomyInsertedId,
+                        "term_order" => "0"
+                    ];
+                    $wpdb->insert($wpdb->term_relationships, $termModelRelationship);
+                }
+            }
+        }
+    }
+    
+    // $termsResult = $wpdb->get_results("
+    //     SELECT * FROM $wpdb->terms AS terms INNER JOIN $wpdb->term_taxonomy AS term_taxonomy ON terms.term_id = term_taxonomy.term_id WHERE term_taxonomy.taxonomy = 'vehica_6659' GROUP BY terms.name
+    // ");
+
+    // foreach($termsResult as $eachTerm) {
+
+    //     $term_id = $wpdb->get_var( $wpdb->prepare("SELECT {$wpdb->terms}.term_id FROM $wpdb->terms INNER JOIN {$wpdb->term_taxonomy} ON {$wpdb->terms}.term_id= {$wpdb->term_taxonomy}.term_id WHERE {$wpdb->terms}.name = %s AND {$wpdb->term_taxonomy}.taxonomy = %s ORDER BY {$wpdb->terms}.term_id DESC LIMIT 1" , $eachTerm->name, 'vehica_6659'));
+
+    //     $term_id_and_taxonomys = $wpdb->get_results("SELECT terms.term_id AS term_id, term_taxonomy.term_taxonomy_id AS term_taxonomy_id FROM $wpdb->terms AS terms INNER JOIN $wpdb->term_taxonomy AS term_taxonomy ON terms.term_id = term_taxonomy.term_id WHERE term_taxonomy.taxonomy = 'vehica_6659' AND terms.name = '" . $eachTerm->name . "' AND terms.term_id != " . $eachTerm->term_id . "");
+
+    //     $term_ids = ['0'];
+    //     $term_taxonomys = ['0'];
+
+    //     foreach($term_id_and_taxonomys as $eachTermIdAndTaxonomy) {
+    //         $term_ids[] = $eachTermIdAndTaxonomy->term_id;
+    //         $term_taxonomys[] = $eachTermIdAndTaxonomy->term_taxonomy_id;
+    //     }
+
+    //     $wpdb->query("UPDATE $wpdb->term_taxonomy AS term_taxonomy SET term_taxonomy.count = term_taxonomy.count + ( SELECT COUNT(*) FROM $wpdb->term_relationships AS term_relationships  WHERE term_relationships.term_taxonomy_id IN (SELECT term_taxonomy.term_taxonomy_id FROM $wpdb->term_taxonomy AS term_taxonomy WHERE term_taxonomy.term_taxonomy_id IN (SELECT term_taxonomy.term_taxonomy_id FROM $wpdb->terms AS terms INNER JOIN $wpdb->term_taxonomy AS term_taxonomy ON terms.`term_id` = term_taxonomy.term_id WHERE term_taxonomy.taxonomy = 'vehica_6659' AND terms.`name` = '" . $eachTerm->name . "'))) WHERE term_taxonomy.term_id = " . $eachTerm->term_id . " AND term_taxonomy.taxonomy = 'vehica_6659'");
+
+    //     $wpdb->query("UPDATE $wpdb->term_relationships AS term_relationships SET term_relationships.term_taxonomy_id = " . $eachTerm->term_id . " WHERE term_relationships.term_taxonomy_id IN (" . implode(',', $term_taxonomys) . ")");
+
+    //     $wpdb->query("UPDATE $wpdb->termmeta AS termmeta SET termmeta.meta_value = 'a:1:{i:0;i:" . $term_id . ";}' WHERE termmeta.meta_key = 'vehica_parent_term' termmeta.meta_value LIKE 'a:1:{i:0;i:" . $eachTerm->term_id . ";}'");
+
+    //     $wpdb->query("DELETE FROM $wpdb->terms WHERE term_id IN (" . implode(',', $term_ids) . ")");
+
+    //     $wpdb->query("DELETE FROM $wpdb->term_taxonomy AS term_taxonomy WHERE term_taxonomy.term_taxonomy_id IN (" . implode(',', $term_taxonomys) . ")");
+
+    //     $wpdb->query("DELETE FROM $wpdb->termmeta AS termmeta WHERE termmeta.term_id IN (" . implode(',', $term_ids) . ")");
+    // }
 }
 
 function clearVehicleList() {
-    $args = array('post_type' => 'vehica_car', 'numberposts' => -1);
-    $posts = get_posts($args);
-	for ($i = 0; $i < count($posts); $i ++) {
-        wp_delete_post( $posts[$i]->ID );
-    }
+    // $args = array('post_type' => 'vehica_car', 'numberposts' => -1);
+    // $posts = get_posts($args);
+	// for ($i = 0; $i < count($posts); $i ++) {
+    //     wp_delete_post( $posts[$i]->ID );
+    // }
 }
 
 add_action('cronAddScrapingPosts', 'cronAddScrapingPosts');
 
+add_action('repairVehicleTerms', 'repairVehicleTerms');
 add_action('clearVehicleList', 'clearVehicleList');
 
 add_filter( 'cron_schedules', function ( $schedules ) {
@@ -588,5 +1120,9 @@ add_action('admin_init', static function () {
 
     if (!wp_next_scheduled('clearVehicleList')) {
         wp_schedule_event(time(), 'per_year', 'clearVehicleList');
+    }
+
+    if (!wp_next_scheduled('repairVehicleTerms')) {
+        wp_schedule_event(time(), 'per_year', 'repairVehicleTerms');
     }
 });
